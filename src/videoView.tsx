@@ -39,6 +39,12 @@ export interface VideoPropsType {
    * @default 1x
    **/
   defaultRateLabel?: ''
+
+  /**
+   * 视频缩放模式
+   * @default contain
+   **/
+  resizeMode?: VideoProperties['resizeMode']
 }
 
 interface VideoViewStateType {
@@ -50,7 +56,6 @@ interface VideoViewStateType {
   rateShow: boolean;
   controlShow: boolean;
   isPortrait: boolean;
-  resizeMode: string;
   loading: boolean;
   muted: boolean
 }
@@ -75,7 +80,6 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
       rate: 1,// 用于倍速播放，0.0-暂停播放，1.0-正常速率播放，其他值 - 自定义速率，例如0.5慢速播放或者2.0快速播放
       volume: 1,//视频播放的音量控制，1.0-满音量， 0.0-将音频静音
       muted: false,//控制音频是否静音，(true、false)
-      resizeMode: 'contain',//视频缩放模式
       paused: true,//控制视频播放暂停 (true、false) ，以上是Video组件的受控的参数
       loading: true,
       duration: 0.0,//视频的总时长
@@ -191,9 +195,9 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
   }
 
   render() {
-    const { goBack, title, source, renderMenu, onError, defaultRateLabel } = this.props
+    const { goBack, title, source, renderMenu, onError, defaultRateLabel, resizeMode } = this.props
     const videoScreen = this.videoScreen
-    const { loading, rateShow, controlShow, isPortrait, volume, resizeMode, paused, muted, currentTime, duration, rate } = this.state
+    const { loading, rateShow, controlShow, isPortrait, volume, paused, muted, currentTime, duration, rate } = this.state
     const controlConfig = {
       duration,
       paused, rate,
@@ -231,7 +235,7 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
             paused={paused}
             volume={volume}
             muted={muted}
-            resizeMode={resizeMode as any}
+            resizeMode={resizeMode || 'contain'}
             repeat={false}
             onLoad={this.onLoad}
             onProgress={this.onProgress}

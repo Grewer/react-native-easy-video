@@ -19,7 +19,7 @@ react-native link react-native-orientation-locker
 iOS  
 Add the following to your project's AppDelegate.m:
 
-```
+```diff
 +#import "Orientation.h"
 
 @implementation AppDelegate
