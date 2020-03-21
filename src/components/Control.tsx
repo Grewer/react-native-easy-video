@@ -1,9 +1,9 @@
 import * as React from 'react'
+import { Component, memo } from 'react'
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import Util from '../utils/util'
 import Orientation from 'react-native-orientation-locker'
 import Progress from './Progress'
-import { Component, memo } from 'react'
 
 interface IProps {
   changeCurrentTime: (rate: number) => void
@@ -15,6 +15,7 @@ interface IProps {
   changePaused: () => void
   isPortrait: boolean
   rate: number
+  defaultRateLabel?: string
 }
 
 const TotalTime: React.FC<{ duration: number }> = memo((props) => {
@@ -42,9 +43,10 @@ type IControlRight = {
   changeRateVisible(visible: boolean): void,
   isPortrait: boolean,
   rate: number,
+  defaultRateLabel?: string
 }
 const ControlRight: React.FC<IControlRight> = memo((props) => {
-  const { changeRateVisible, isPortrait, rate } = props
+  const { changeRateVisible, isPortrait, rate, defaultRateLabel } = props
   return <View style={styles.toolRight}>
 
     <TouchableOpacity
@@ -58,7 +60,7 @@ const ControlRight: React.FC<IControlRight> = memo((props) => {
         alignItems: 'center'
       }}>
       <Text
-        style={{ color: '#fff' }}>{rate == 1 ? '倍速' : rate + 'x'}</Text>
+        style={{ color: '#fff' }}>{(defaultRateLabel && rate === 1) ? defaultRateLabel : rate + 'x'}</Text>
     </TouchableOpacity>
 
     {isPortrait && <TouchableOpacity
@@ -103,7 +105,7 @@ class Control extends Component<IProps> {
 
   render() {
     const { moveTime } = this.state
-    const { changePaused, paused, duration, currentTime, rate, isPortrait, changeRateVisible } = this.props
+    const { changePaused, paused, duration, currentTime, rate, isPortrait, changeRateVisible, defaultRateLabel } = this.props
     const time = moveTime ? moveTime : currentTime
     // console.log('render control', currentTime / duration)
     return (
@@ -122,7 +124,8 @@ class Control extends Component<IProps> {
             }}>{Util.formSecondTotHMS(time)}</Text>
             <TotalTime duration={duration}/>
           </View>
-          <ControlRight rate={rate} isPortrait={isPortrait} changeRateVisible={changeRateVisible}/>
+          <ControlRight defaultRateLabel={defaultRateLabel} rate={rate} isPortrait={isPortrait}
+                        changeRateVisible={changeRateVisible}/>
         </View>
       </>
     )

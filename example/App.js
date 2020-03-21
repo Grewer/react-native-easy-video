@@ -22,7 +22,7 @@ export default class App extends Component<Props> {
                 <StatusBar barStyle={"light-content"}/>
                 <VideoView
                     title="file name video.mp4"
-                    renderMenu={() => <Text style={{color: '#fff'}}>额外目录</Text>}
+                    renderMenu={(isPortrait) => <Text style={{color: '#fff', marginRight: 20}}>custom menu</Text>}
                     source={source}
                     goBack={() => {
                         alert('goBack')

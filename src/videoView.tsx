@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { Component, createRef } from 'react'
 import { ActivityIndicator, PanResponder, PanResponderInstance, StatusBar, StyleSheet, View } from 'react-native'
 import Util from './utils/util'
 import Video, { VideoProperties } from 'react-native-video'
@@ -6,7 +7,6 @@ import Orientation, { OrientationType } from 'react-native-orientation-locker'
 import Control from './components/Control'
 import RateView from './components/RateView'
 import VideoHeader from './components/VideoHeader'
-import { Component, createRef } from 'react'
 
 export interface VideoPropsType {
   /**
@@ -28,6 +28,17 @@ export interface VideoPropsType {
    *  文件源
    **/
   source: VideoProperties['source']
+
+  /**
+   *  加载错误时的 callback
+   **/
+  onError?: VideoProperties['onError']
+
+  /**
+   * 默认倍数的显示
+   * @default 1x
+   **/
+  defaultRateLabel?: ''
 }
 
 interface VideoViewStateType {
@@ -180,7 +191,7 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
   }
 
   render() {
-    const { goBack, title, source, renderMenu, ...rest } = this.props
+    const { goBack, title, source, renderMenu, onError, defaultRateLabel } = this.props
     const videoScreen = this.videoScreen
     const { loading, rateShow, controlShow, isPortrait, volume, resizeMode, paused, muted, currentTime, duration, rate } = this.state
     const controlConfig = {
@@ -191,7 +202,8 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
       isPortrait,
       changeCurrentTime: this.changeCurrentTime,
       changePaused: this.changePaused,
-      changeRateVisible: this.changeRateVisible
+      changeRateVisible: this.changeRateVisible,
+      defaultRateLabel
     }
 
     // console.log('render video views', loading)
@@ -208,30 +220,30 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
         <View {...this.panResponder.panHandlers}
               style={{ width: videoScreen.width, height: videoScreen.height, backgroundColor: 'black' }}>
           {/*关于 iOS 加载 HTTP https://www.npmjs.com/package/react-native-video#ios-app-transport-security*/}
-          <Video ref={(ref) => {
-            this.video = ref
-          }}
-                 reportBandwidth={true}
-                 allowsExternalPlayback={true}
-                 onLoadStart={this.startLoading}
-                 onReadyForDisplay={this.stopLoading}
-                 source={source}
-                 style={{ width: '100%', height: '100%' }}
-                 rate={rate}
-                 paused={paused}
-                 volume={volume}
-                 muted={muted}
-                 resizeMode={resizeMode as any}
-                 repeat={false}
-                 onLoad={this.onLoad}
-                 onProgress={this.onProgress}
-                 onEnd={this.onEnd}
-                 onError={(err) => {
-                   // console.log('onError', err)
-                 }}
-                 playInBackground={true}
-                 useTextureView={false} // android 某种设置 test
-                 {...rest}
+          <Video
+            reportBandwidth={true}
+            allowsExternalPlayback={true}
+            onLoadStart={this.startLoading}
+            onReadyForDisplay={this.stopLoading}
+            source={source}
+            style={{ width: '100%', height: '100%' }}
+            rate={rate}
+            paused={paused}
+            volume={volume}
+            muted={muted}
+            resizeMode={resizeMode as any}
+            repeat={false}
+            onLoad={this.onLoad}
+            onProgress={this.onProgress}
+            onEnd={this.onEnd}
+            onError={(err) => {
+              onError && onError(err)
+            }}
+            playInBackground={true}
+            useTextureView={false} // android 某种设置 test
+            ref={(ref) => {
+              this.video = ref
+            }}
           />
           <View style={[styles.loading, styles.horizontal]}>
             <ActivityIndicator size="large" color="#b0b0b0" animating={loading}/>
