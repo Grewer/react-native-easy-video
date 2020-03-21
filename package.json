@@ -1,12 +1,12 @@
 {
   "name": "react-native-easy-video",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A UI component that wraps react-native-video",
   "main": "build/videoView.js",
   "author": "grewer(grewer@grewer.cn)",
   "scripts": {
     "build": "gulp",
-    "publish": "gulp && npm publish"
+    "npmPublish": "gulp && npm publish"
   },
   "dependencies": {},
   "keywords": [
