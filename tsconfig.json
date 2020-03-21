@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "rootDir": "src",
+    "target": "esnext",
+    "module": "commonjs",
+    "jsx": "react-native",
+    "outDir": "build",
+    "baseUrl": ".",
+    "removeComments": false, // 将编译后的文件注释删掉
+    "noImplicitAny": true, // 如果我们没有一些值设置明确类型，编译器会默认认为这个值为any类型
+    "allowSyntheticDefaultImports": true, // 允许从没有默认导出的模块中默认导入
+    "experimentalDecorators": true, // 开启装饰器
+    "emitDecoratorMetadata": true, // 是否为装上去提供元数据支持，关于元数据，也是ES6的新标准，可以通过Reflect提供的静态方法获取元数据，如果需要使用Reflect的一些方法，需要引用ES2015.Reflect这个库
+    "skipLibCheck": true, // 跳过声明文件的类型检查
+    "declaration": true
+  },
+  "types": [
+    "react",
+    "react-dom",
+    "react-native"
+  ],
+  "exclude":[
+    "build",
+    "node_modules",
+    "jest.config.js",
+    "App.js"
+  ],
+  "compileOnSave": false
+}

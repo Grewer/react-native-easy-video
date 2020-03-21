@@ -1,0 +1,39 @@
+{
+  "name": "react-native-easy-video",
+  "version": "1.0.0",
+  "description": "A UI component that wraps react-native-video",
+  "main": "index.js",
+  "author": "grewer(grewer@grewer.cn)",
+  "scripts": {
+    "build": "gulp"
+  },
+  "dependencies": {
+    "@types/node": "^13.9.2"
+  },
+  "keywords": [
+    "react-native",
+    "react-native-video",
+    "react video controls",
+    "react video player",
+    "react-video-player",
+    "react video easy vodeo",
+    "react-video-easy-vodeo"
+  ],
+  "repository": {
+    "url": "https://github.com/Grewer/react-native-easy-video.git"
+  },
+  "peerDependencies": {
+    "react-native": ">=0.46.0",
+    "react-native-video": "<5.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^16.9.23",
+    "@types/react-native": "^0.57.65",
+    "@types/react-native-video": "^5.0.0",
+    "del": "^5.1.0",
+    "gulp": "^4.0.2",
+    "gulp-typescript": "^6.0.0-alpha.1",
+    "react-native-orientation-locker": "^1.1.8",
+    "typescript": "^3.8.3"
+  }
+}
