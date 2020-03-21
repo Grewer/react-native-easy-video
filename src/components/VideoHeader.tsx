@@ -1,6 +1,7 @@
-import React from 'react'
+import * as React from 'react'
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import Orientation from 'react-native-orientation-locker'
+import { memo } from 'react'
 
 
 const VideoHeader: React.FC<{
@@ -8,8 +9,8 @@ const VideoHeader: React.FC<{
   isPortrait: boolean
   goBack(): void
   title: string
-  renderMenu?: (isPortrait:boolean) => React.ReactNode
-}> = React.memo((props) => {
+  renderMenu?: (isPortrait: boolean) => React.ReactNode
+}> = memo((props) => {
   return <View style={styles.container}>
     <TouchableOpacity
       onPress={() => {

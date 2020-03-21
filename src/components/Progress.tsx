@@ -1,4 +1,5 @@
-import React from 'react'
+import * as React from 'react'
+import { PureComponent } from 'react'
 import {
   GestureResponderEvent,
   LayoutChangeEvent,
@@ -20,7 +21,7 @@ interface IProps {
   gap: number
 }
 
-export default class Progress extends React.PureComponent<IProps, {}> {
+export default class Progress extends PureComponent<IProps, {}> {
   private pageX: number
   private progressLocation: { name?: string, width: number; pageX: number }
   private panResponder: PanResponderInstance

@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import * as React from 'react'
 import { ActivityIndicator, PanResponder, PanResponderInstance, StatusBar, StyleSheet, View } from 'react-native'
 import Util from './utils/util'
 import Video, { VideoProperties } from 'react-native-video'
@@ -6,6 +6,7 @@ import Orientation, { OrientationType } from 'react-native-orientation-locker'
 import Control from './components/Control'
 import RateView from './components/RateView'
 import VideoHeader from './components/VideoHeader'
+import { Component, createRef } from 'react'
 
 export interface VideoPropsType {
   /**
@@ -50,7 +51,7 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
   private videoScreen: { width: number; paddingTop: number; paddingLeft: number; height: number, rate?: number }
   private statusHeight: number
   private video: InstanceType<typeof Video>
-  private controlRef: React.RefObject<any> = React.createRef()
+  private controlRef: React.RefObject<any> = createRef()
   private isIphoneX: boolean
 
   constructor(props: any) {

@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
-    "rootDir": "src",
     "target": "esnext",
-    "module": "commonjs",
+    "module": "CommonJS",
     "jsx": "react-native",
     "outDir": "build",
     "baseUrl": ".",

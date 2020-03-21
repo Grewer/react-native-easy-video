@@ -1,5 +1,7 @@
-import React from 'react'
+import * as React from 'react'
+import { PureComponent } from 'react'
 import { Animated, Easing, StyleSheet, Text, TouchableOpacity } from 'react-native'
+
 type AnimatedValue = Animated.AnimatedValue
 
 interface IProps {
@@ -11,7 +13,7 @@ interface IState {
   right: AnimatedValue
 }
 
-class RateView extends React.PureComponent<IProps, IState> {
+class RateView extends PureComponent<IProps, IState> {
 
   state = {
     right: new Animated.Value(120)

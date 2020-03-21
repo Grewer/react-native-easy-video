@@ -1,8 +1,9 @@
-import React from 'react'
+import * as React from 'react'
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import Util from '../utils/util'
 import Orientation from 'react-native-orientation-locker'
 import Progress from './Progress'
+import { Component, memo } from 'react'
 
 interface IProps {
   changeCurrentTime: (rate: number) => void
@@ -16,13 +17,13 @@ interface IProps {
   rate: number
 }
 
-const TotalTime: React.FC<{ duration: number }> = React.memo((props) => {
+const TotalTime: React.FC<{ duration: number }> = memo((props) => {
   return <Text style={{
     color: '#fff',
   }}>{` / ${Util.formSecondTotHMS(props.duration)}`}</Text>
 })
 
-const StartAndPaused: React.FC<Pick<IProps, 'changePaused' | 'paused'>> = React.memo((props) => {
+const StartAndPaused: React.FC<Pick<IProps, 'changePaused' | 'paused'>> = memo((props) => {
   return <TouchableOpacity
     onPress={props.changePaused}
     style={{
@@ -42,7 +43,7 @@ type IControlRight = {
   isPortrait: boolean,
   rate: number,
 }
-const ControlRight: React.FC<IControlRight> = React.memo((props) => {
+const ControlRight: React.FC<IControlRight> = memo((props) => {
   const { changeRateVisible, isPortrait, rate } = props
   return <View style={styles.toolRight}>
 
@@ -78,7 +79,7 @@ const ControlRight: React.FC<IControlRight> = React.memo((props) => {
 })
 
 
-class Control extends React.Component<IProps> {
+class Control extends Component<IProps> {
 
   state = {
     moveTime: 0 // 控制显示的时间

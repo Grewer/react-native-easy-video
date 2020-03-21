@@ -1,8 +1,8 @@
 {
   "name": "react-native-easy-video",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A UI component that wraps react-native-video",
-  "main": "index.js",
+  "main": "build/videoView.js",
   "author": "grewer(grewer@grewer.cn)",
   "scripts": {
     "build": "gulp"
@@ -15,9 +15,11 @@
     "react video player",
     "react-video-player",
     "react video easy vodeo",
-    "react-video-easy-vodeo"
+    "react-video-easy-vodeo",
+    "video"
   ],
   "repository": {
+    "type": "git",
     "url": "https://github.com/Grewer/react-native-easy-video.git"
   },
   "peerDependencies": {
