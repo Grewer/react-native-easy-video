@@ -7,9 +7,7 @@
   "scripts": {
     "build": "gulp"
   },
-  "dependencies": {
-    "@types/node": "^13.9.2"
-  },
+  "dependencies": {},
   "keywords": [
     "react-native",
     "react-native-video",
@@ -24,10 +22,11 @@
   },
   "peerDependencies": {
     "react-native": ">=0.46.0",
-    "react-native-video": ">=4.4.4",
-    "react-native-orientation-locker": ">=1.1.0"
+    "react-native-orientation-locker": ">=1.1.0",
+    "react-native-video": ">=4.4.4"
   },
   "devDependencies": {
+    "@types/node": "^13.9.2",
     "@types/react": "^16.9.23",
     "@types/react-native": "^0.57.65",
     "@types/react-native-video": "^5.0.0",
