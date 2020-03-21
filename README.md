@@ -79,6 +79,13 @@ https://github.com/Grewer/react-native-easy-video/tree/master/example
 
 ## Usage
 
+### download
+```
+yarn add react-native-easy-video
+
+// or npm i react-native-easy-video
+```
+
 https://github.com/Grewer/react-native-easy-video/blob/master/example/App.js
 
 ## Props
