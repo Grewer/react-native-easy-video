@@ -1,8 +1,9 @@
 {
   "name": "react-native-easy-video",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A UI component that wraps react-native-video",
-  "main": "build/videoView.js",
+  "main": "./build/videoView.js",
+  "types": "./build/videoView.d.ts",
   "author": "grewer(grewer@grewer.cn)",
   "scripts": {
     "build": "gulp",
@@ -29,6 +30,7 @@
     "react-native-video": ">=4.4.4"
   },
   "devDependencies": {
+    "@grew/eslint-config": "^0.1.4",
     "@types/node": "^13.9.2",
     "@types/react": "^16.9.23",
     "@types/react-native": "^0.57.65",
@@ -38,5 +40,18 @@
     "gulp-typescript": "^6.0.0-alpha.1",
     "react-native-orientation-locker": "^1.1.8",
     "typescript": "^3.8.3"
-  }
+  },
+  "eslintConfig": {
+    "extends": [
+      "@grew"
+    ],
+    "env": {
+      "react-native/react-native": true
+    }
+  },
+  "eslintIgnore": [
+    "!.eslintrc.js",
+    "!.prettierrc.js"
+  ],
+  "prettier": "@grew/eslint-config/.prettierrc.js"
 }
