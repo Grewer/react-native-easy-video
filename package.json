@@ -6,8 +6,7 @@
   "types": "./build/videoView.d.ts",
   "author": "grewer(grewer@grewer.cn)",
   "scripts": {
-    "build": "gulp",
-    "npmPublish": "gulp && npm publish"
+    "build": "gulp"
   },
   "dependencies": {},
   "keywords": [
@@ -51,7 +50,8 @@
   },
   "eslintIgnore": [
     "!.eslintrc.js",
-    "!.prettierrc.js"
+    "!.prettierrc.js",
+    "build/*"
   ],
   "prettier": "@grew/eslint-config/.prettierrc.js"
 }

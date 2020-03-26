@@ -8,6 +8,9 @@ import Control from './components/Control'
 import RateView from './components/RateView'
 import VideoHeader from './components/VideoHeader'
 
+// todo 不适用 VideoProperties
+// onerror 时去掉 loading
+// renderMenu 默认值为 View 
 export interface VideoPropsType {
   /**
    * 正常播放下回退按钮的操作
