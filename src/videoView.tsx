@@ -26,6 +26,9 @@ export interface VideoPropsType {
 
   /**
    *  文件源
+   *  如果文件路径有中文记得使用 encodeURI
+   *  如果需要播放 m3u8 ,需要添加 type:'m3u8'
+   *  如果 uri 是一个本地文件地址,那暂不支持播放
    * */
   source: { uri?: string; type?: string; headers: { [key: string]: any } } | number
 
@@ -73,7 +76,7 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
   private statusHeight: number
   private video: InstanceType<typeof Video>
   private controlRef: React.RefObject<any> = createRef()
-  private isIphoneX: boolean
+  private readonly isIphoneX: boolean
 
   constructor(props: any) {
     super(props)
@@ -117,6 +120,7 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
         // 清除定时器
         this.clearTimeout()
         if (this.state.rateShow) {
+          // 隐藏右边的变速
           if (e.nativeEvent.pageX < this.videoScreen.width - 120) {
             this.setState({
               rateShow: false,
@@ -367,9 +371,11 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
               this.video = ref
             }}
           />
-          <View style={[styles.loading, styles.horizontal]}>
-            <ActivityIndicator size="large" color="#b0b0b0" animating={loading} />
-          </View>
+          {loading && (
+            <View style={[styles.loading, styles.horizontal]}>
+              <ActivityIndicator size="large" color="#b0b0b0" />
+            </View>
+          )}
           {controlShow && (
             <View
               style={[

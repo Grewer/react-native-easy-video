@@ -1,6 +1,6 @@
 {
   "name": "react-native-easy-video",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "A UI component that wraps react-native-video",
   "main": "./build/videoView.js",
   "types": "./build/videoView.d.ts",
