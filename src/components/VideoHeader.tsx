@@ -27,7 +27,7 @@ const VideoHeader: React.FC<{
 
       <Text style={{ color: '#fff' }}>{props.title}</Text>
 
-      {props.renderMenu && props.renderMenu(props.isPortrait)}
+      {props.renderMenu ? props.renderMenu(props.isPortrait) : <View />}
     </View>
   )
 })

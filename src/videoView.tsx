@@ -1,16 +1,13 @@
 import * as React from 'react'
 import { Component, createRef } from 'react'
 import { ActivityIndicator, PanResponder, PanResponderInstance, StatusBar, StyleSheet, View } from 'react-native'
-import Video, { VideoProperties } from 'react-native-video'
+import Video from 'react-native-video'
 import Orientation, { OrientationType } from 'react-native-orientation-locker'
 import Util from './utils/util'
 import Control from './components/Control'
 import RateView from './components/RateView'
 import VideoHeader from './components/VideoHeader'
 
-// todo 不适用 VideoProperties
-// onerror 时去掉 loading
-// renderMenu 默认值为 View 
 export interface VideoPropsType {
   /**
    * 正常播放下回退按钮的操作
@@ -30,12 +27,17 @@ export interface VideoPropsType {
   /**
    *  文件源
    * */
-  source: VideoProperties['source']
+  source: { uri?: string; type?: string; headers: { [key: string]: any } } | number
 
   /**
    *  加载错误时的 callback
    * */
-  onError?: VideoProperties['onError']
+  onError?(error: {
+    error: {
+      '': string
+      errorString: string
+    }
+  }): void
 
   /**
    * 默认倍数的显示
@@ -47,7 +49,7 @@ export interface VideoPropsType {
    * 视频缩放模式
    * @default contain
    * */
-  resizeMode?: VideoProperties['resizeMode']
+  resizeMode?: 'stretch' | 'contain' | 'cover' | 'none'
 }
 
 interface VideoViewStateType {
@@ -137,8 +139,23 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
     })
   }
 
-  // 监听屏幕的改变，重新计算视频的布局并重新渲染
+  componentDidMount() {
+    this.closeControl()
+
+    // 添加屏幕方向监听
+    Orientation.addOrientationListener(this.updateOrientation)
+  }
+
+  componentWillUnmount() {
+    this.clearTimeout()
+    // 关闭页面时让系统竖屏
+    Orientation.lockToPortrait()
+    // 移除屏幕监听
+    Orientation.removeOrientationListener(this.updateOrientation)
+  }
+
   updateOrientation = (orientation: OrientationType) => {
+    // 监听屏幕的改变，重新计算视频的布局并重新渲染
     // console.log('屏幕变化', orientation)
     const isPortrait = orientation === 'PORTRAIT'
     this.calculateParams(isPortrait)
@@ -160,21 +177,6 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
     }, 5000)
   }
 
-  componentDidMount() {
-    this.closeControl()
-
-    // 添加屏幕方向监听
-    Orientation.addOrientationListener(this.updateOrientation)
-  }
-
-  componentWillUnmount() {
-    this.clearTimeout()
-    // 关闭页面时让系统竖屏
-    Orientation.lockToPortrait()
-    // 移除屏幕监听
-    Orientation.removeOrientationListener(this.updateOrientation)
-  }
-
   startLoading = () => {
     this.setState({ loading: true })
   }
@@ -184,9 +186,9 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
   }
 
   changePaused = () => {
-    this.setState({
-      paused: !this.state.paused,
-    })
+    this.setState(prevState => ({
+      paused: !prevState.paused,
+    }))
   }
 
   changeRateVisible = (rateShow: boolean) => {
@@ -195,6 +197,116 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
 
   changeRate = (rate: number) => {
     this.setState({ rate })
+  }
+
+  // 计算视频的显示布局
+  calculateParams = (isPortrait: boolean) => {
+    Util.getSize()
+
+    let width = Util.getWidth()
+    let height = Util.getHeight()
+
+    if (Util.isPlatform('android') && this.state.isPortrait !== isPortrait) {
+      width = Util.getHeight()
+      height = Util.getWidth()
+    }
+
+    // console.log(width, height, this.state.isPortrait, isPortrait)
+
+    // 初始化视频可用分辨率
+    this.videoScreen = {
+      width,
+      height,
+      paddingTop: 0, // 用于竖屏
+      paddingLeft: 0, // 用于横屏
+      // rate:Util.getWidth()/Util.getHeight() //宽高比
+    }
+
+    // 计算视频可用分辨率
+    this.statusHeight = 0
+
+    // 竖屏
+    if (isPortrait) {
+      if (this.isIphoneX) {
+        this.statusHeight = 40
+        this.videoScreen.height -= 74
+      } else {
+        this.statusHeight = 20
+        this.videoScreen.height -= 20
+      }
+
+      // 安卓不开启沉浸式时为0，
+      if (Util.isPlatform('android')) {
+        this.statusHeight = 0
+      }
+      // 竖屏设置top
+      this.videoScreen.paddingTop = this.statusHeight
+      this.videoScreen.paddingLeft = 0
+    } else {
+      // 横屏
+      if (this.isIphoneX) {
+        this.statusHeight = 40
+        this.videoScreen.width -= 74
+      } else if (Util.isPlatform('android')) {
+        this.videoScreen.height = this.videoScreen.height - StatusBar.currentHeight || 0
+      }
+      // 横屏设置left
+      this.videoScreen.paddingTop = 0
+      this.videoScreen.paddingLeft = 34
+    }
+
+    // console.log(this.videoScreen)
+
+    // 可用屏幕宽高比
+    this.videoScreen.rate = this.videoScreen.width / this.videoScreen.height
+
+    // 竖屏时候特殊处理，不全屏
+    if (isPortrait) {
+      if (this.videoRatio && this.videoScreen.rate < this.videoRatio.rate) {
+        this.videoScreen.height = this.videoScreen.width / this.videoRatio.rate
+      }
+    }
+  }
+
+  // 设置视频的播放进度
+  changeProgress = (time: number) => {
+    this.video.seek(time)
+  }
+
+  // 改变视频的播放时间
+  changeCurrentTime: (rate: number) => void = (rate: number) => {
+    this.setState(prevState => ({
+      currentTime: rate * prevState.duration,
+    }))
+  }
+
+  // 加载视频获取视频相关参数
+  onLoad = (data: any) => {
+    // 如果在安卓中已经播放
+    // console.log('onLoad', data)
+    if (Util.isPlatform('android')) {
+      this.stopLoading()
+    }
+    this.setState({ duration: data.duration })
+    // 获取视频实际分辨率
+    this.videoRatio = {
+      width: data.width,
+      height: data.height,
+    }
+  }
+
+  // 获取视频的播放进度
+  onProgress = (data: { currentTime: any }) => {
+    this.setState({ currentTime: data.currentTime })
+  }
+
+  // 视频播放完回调
+  onEnd = () => {
+    // console.log('onEnd')
+    this.video.seek(0)
+    if (this.controlRef.current) {
+      this.controlRef.current.clearMoveTime()
+    }
   }
 
   render() {
@@ -246,6 +358,7 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
             onProgress={this.onProgress}
             onEnd={this.onEnd}
             onError={err => {
+              this.stopLoading()
               onError && onError(err)
             }}
             playInBackground
@@ -276,116 +389,6 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
         </View>
       </View>
     )
-  }
-
-  // 计算视频的显示布局
-  calculateParams = (isPortrait: boolean) => {
-    Util.getSize()
-
-    let width = Util.getWidth()
-    let height = Util.getHeight()
-
-    if (Util.isPlatform('android') && this.state.isPortrait !== isPortrait) {
-      width = Util.getHeight()
-      height = Util.getWidth()
-    }
-
-    // console.log(width, height, this.state.isPortrait, isPortrait)
-
-    // 初始化视频可用分辨率
-    this.videoScreen = {
-      width,
-      height,
-      paddingTop: 0, // 用于竖屏
-      paddingLeft: 0, // 用于横屏
-      // rate:Util.getWidth()/Util.getHeight() //宽高比
-    }
-
-    // 计算视频可用分辨率
-    this.statusHeight = 0
-
-    // 竖屏
-    if (isPortrait) {
-      if (this.isIphoneX) {
-        this.statusHeight = 40
-        this.videoScreen.height -= 74
-      } else {
-        this.statusHeight = 20
-        this.videoScreen.height -= 20
-      }
-
-      // 安卓不开启沉浸式时为0，
-      if (Util.isPlatform('android')) {
-        this.statusHeight = 0
-      }
-      // 竖屏设置top
-      this.videoScreen.paddingTop = this.statusHeight
-      this.videoScreen.paddingLeft = 0
-    } else {
-      // 横屏
-      if (this.isIphoneX) {
-        this.statusHeight = 40
-        this.videoScreen.width = this.videoScreen.width - 74
-      } else if (Util.isPlatform('android')) {
-        this.videoScreen.height = this.videoScreen.height - StatusBar.currentHeight || 0
-      }
-      // 横屏设置left
-      this.videoScreen.paddingTop = 0
-      this.videoScreen.paddingLeft = 34
-    }
-
-    // console.log(this.videoScreen)
-
-    // 可用屏幕宽高比
-    this.videoScreen.rate = this.videoScreen.width / this.videoScreen.height
-
-    // 竖屏时候特殊处理，不全屏
-    if (isPortrait) {
-      if (this.videoRatio && this.videoScreen.rate < this.videoRatio.rate) {
-        this.videoScreen.height = this.videoScreen.width / this.videoRatio.rate
-      }
-    }
-  }
-
-  // 设置视频的播放进度
-  changeProgress = (time: number) => {
-    this.video.seek(time)
-  }
-
-  // 改变视频的播放时间
-  changeCurrentTime: (rate: number) => void = (rate: number) => {
-    this.setState({
-      currentTime: rate * this.state.duration,
-    })
-  }
-
-  // 加载视频获取视频相关参数
-  onLoad = (data: any) => {
-    // 如果在安卓中已经播放
-    // console.log('onLoad', data)
-    if (Util.isPlatform('android')) {
-      this.stopLoading()
-    }
-    this.setState({ duration: data.duration })
-    // 获取视频实际分辨率
-    this.videoRatio = {
-      width: data.width,
-      height: data.height,
-    }
-  }
-
-  // 获取视频的播放进度
-  onProgress = (data: { currentTime: any }) => {
-    this.setState({ currentTime: data.currentTime })
-  }
-
-  // 视频播放完回调
-  onEnd = () => {
-    // console.log('onEnd')
-    this.video.seek(0)
-    if (this.controlRef.current) {
-      this.controlRef.current.clearMoveTime()
-    }
   }
 }
 

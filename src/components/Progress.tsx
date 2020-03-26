@@ -75,7 +75,7 @@ export default class Progress extends Component<IProps, {}> {
     })
   }
 
-  shouldComponentUpdate(nextProps: Readonly<IProps>, nextState: Readonly<{}>): boolean {
+  shouldComponentUpdate(nextProps: Readonly<IProps>): boolean {
     if (this.isMove) {
       return false
     }
@@ -127,7 +127,7 @@ export default class Progress extends Component<IProps, {}> {
     // let {x, y, width, height} = event.nativeEvent.layout;
     // 拿到这个view的x位置和宽度
     // @ts-ignore
-    NativeModules.UIManager.measure(event.target, (x, y, width, height, pageX, pageY) => {
+    NativeModules.UIManager.measure(event.target, (x, y, width) => {
       // 安卓手机获取的值与ios不一样，特殊处理
       // if (Util.isPlatform('android')) {
       //   // x = pageX + 10
