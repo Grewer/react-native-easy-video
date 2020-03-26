@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { PureComponent } from 'react'
+import { Component } from 'react'
 import {
   GestureResponderEvent,
   LayoutChangeEvent,
@@ -11,6 +11,7 @@ import {
   View,
   ViewStyle,
 } from 'react-native'
+import shallowEqual from '../utils/shallowEqual'
 
 interface IProps {
   style: StyleProp<ViewStyle>
@@ -21,7 +22,7 @@ interface IProps {
   gap: number
 }
 
-export default class Progress extends PureComponent<IProps, {}> {
+export default class Progress extends Component<IProps, {}> {
   private pageX: number
   private progressLocation: { name?: string; width: number; pageX: number }
   private panResponder: PanResponderInstance
@@ -72,6 +73,13 @@ export default class Progress extends PureComponent<IProps, {}> {
         return true
       },
     })
+  }
+
+  shouldComponentUpdate(nextProps: Readonly<IProps>, nextState: Readonly<{}>): boolean {
+    if (this.isMove) {
+      return false
+    }
+    return !shallowEqual(nextProps, this.props)
   }
 
   _updateNativeStyles = () => {
