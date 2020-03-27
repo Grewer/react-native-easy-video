@@ -17,6 +17,7 @@ interface IProps {
   isPortrait: boolean
   rate: number
   defaultRateLabel?: string
+  seekTrigger: (seekTime: number) => void
 }
 
 const StartAndPaused: React.FC<Pick<IProps, 'changePaused' | 'paused'>> = memo(props => {
@@ -92,7 +93,7 @@ class Control extends Component<IProps> {
     return !shallowEqual(nextProps, this.props)
   }
 
-  start = () => {
+  onStart = () => {
     this.isMove = true
   }
 
@@ -105,9 +106,11 @@ class Control extends Component<IProps> {
       })
   }
 
-  complete = (rate: number) => {
+  onEnd = (rate: number) => {
     this.isMove = false
-    this.props.changeProgress(rate * this.props.duration)
+    const time = rate * this.props.duration
+    this.props.seekTrigger(time)
+    this.props.changeProgress(time)
   }
 
   render() {
@@ -119,9 +122,9 @@ class Control extends Component<IProps> {
           style={styles.slider}
           gap={5}
           value={currentTime / duration}
-          onStart={this.start}
+          onStart={this.onStart}
           onMove={this.changeMoveTime}
-          onEnd={this.complete}
+          onEnd={this.onEnd}
         />
         <View style={styles.tools}>
           <View style={styles.toolLeft}>

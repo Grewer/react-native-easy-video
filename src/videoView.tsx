@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Component, createRef } from 'react'
-import { ActivityIndicator, PanResponder, PanResponderInstance, StatusBar, StyleSheet, TouchableOpacity, View, Text } from 'react-native'
+import { ActivityIndicator, PanResponder, PanResponderInstance, StatusBar, StyleSheet, View } from 'react-native'
 import Video from 'react-native-video'
 import Orientation, { OrientationType } from 'react-native-orientation-locker'
 import Util from './utils/util'
@@ -77,6 +77,8 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
   private video: InstanceType<typeof Video>
   private controlRef: React.RefObject<any> = createRef()
   private readonly isIphoneX: boolean
+  private seekTimeOut: NodeJS.Timeout
+  private seekTimeCheck = 0
 
   constructor(props: any) {
     super(props)
@@ -181,12 +183,14 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
     }, 5000)
   }
 
-  startLoading = () => {
-    this.setState({ loading: true })
+  changeLoading = (loading: boolean) => {
+    if (loading !== this.state.loading) {
+      this.setState({ loading })
+    }
   }
 
-  stopLoading = () => {
-    this.setState({ loading: false })
+  onLoadStart = () => {
+    this.changeLoading(true)
   }
 
   changePaused = () => {
@@ -287,9 +291,9 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
   // 加载视频获取视频相关参数
   onLoad = (data: any) => {
     // 如果在安卓中已经播放
-    // console.log('onLoad', data)
+    console.log('onLoad', data)
     if (Util.isPlatform('android')) {
-      this.stopLoading()
+      this.changeLoading(false)
     }
     this.setState({ duration: data.duration })
     // 获取视频实际分辨率
@@ -310,6 +314,26 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
     this.video.seek(0)
   }
 
+  seekTrigger = (time: number) => {
+    console.log('seekTrigger')
+    this.seekTimeCheck = time
+    this.seekTimeOut && clearTimeout(this.seekTimeOut)
+    this.seekTimeOut = setTimeout(() => {
+      this.changeLoading(true)
+    }, 300)
+  }
+
+  onSeek = (data: { currentTime: number }) => {
+    if (Util.isPlatform('android')) {
+      return
+    }
+    console.log('onSeek', data, this.seekTimeCheck)
+    if (Math.floor(this.seekTimeCheck) === Math.floor(data.currentTime)) {
+      this.seekTimeOut && clearTimeout(this.seekTimeOut)
+      this.changeLoading(false)
+    }
+  }
+
   render() {
     const { goBack, title, source, renderMenu, onError, defaultRateLabel, resizeMode } = this.props
     const { videoScreen } = this
@@ -325,6 +349,7 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
       changePaused: this.changePaused,
       changeRateVisible: this.changeRateVisible,
       defaultRateLabel,
+      seekTrigger: this.seekTrigger,
     }
 
     // console.log('render video views', loading)
@@ -345,8 +370,10 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
           <Video
             reportBandwidth
             allowsExternalPlayback
-            onLoadStart={this.startLoading}
-            onReadyForDisplay={this.stopLoading}
+            onLoadStart={this.onLoadStart}
+            onReadyForDisplay={() => {
+              this.changeLoading(false)
+            }}
             source={source}
             style={{ width: '100%', height: '100%' }}
             rate={rate}
@@ -359,9 +386,10 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
             onProgress={this.onProgress}
             onEnd={this.onEnd}
             onError={err => {
-              this.stopLoading()
+              this.changeLoading(false)
               onError && onError(err)
             }}
+            onSeek={this.onSeek}
             useTextureView={false} // android 某种设置 test
             ref={ref => {
               this.video = ref
@@ -372,6 +400,7 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
               <ActivityIndicator size="large" color="#b0b0b0" />
             </View>
           )}
+
           {controlShow && (
             <View
               style={[
@@ -408,16 +437,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
   },
   loading: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.7)',
     borderRadius: 10,
-    height: 40,
+    height: 100,
     justifyContent: 'center',
     left: '50%',
-    padding: 10,
     position: 'absolute',
     top: '50%',
-    transform: [{ translateY: -20 }, { translateX: -20 }],
-    width: 40,
+    transform: [{ translateY: -50 }, { translateX: -50 }],
+    width: 100,
   },
   touchContainer: {
     alignItems: 'flex-start',
