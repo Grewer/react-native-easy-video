@@ -1,9 +1,10 @@
 import * as React from 'react'
 import { Component, memo } from 'react'
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import Orientation from 'react-native-orientation-locker'
 import Util from '../utils/util'
 import Progress from './Progress'
+import shallowEqual from '../utils/shallowEqual'
 
 interface IProps {
   changeCurrentTime: (rate: number) => void
@@ -17,16 +18,6 @@ interface IProps {
   rate: number
   defaultRateLabel?: string
 }
-
-const TotalTime: React.FC<{ duration: number }> = memo(props => {
-  return (
-    <Text
-      style={{
-        color: '#fff',
-      }}
-    >{` / ${Util.formSecondTotHMS(props.duration)}`}</Text>
-  )
-})
 
 const StartAndPaused: React.FC<Pick<IProps, 'changePaused' | 'paused'>> = memo(props => {
   return (
@@ -91,45 +82,68 @@ const ControlRight: React.FC<IControlRight> = memo(props => {
 })
 
 class Control extends Component<IProps> {
-  state = {
-    moveTime: 0, // 控制显示的时间
+  private timeCount: any
+  private isMove: boolean
+
+  shouldComponentUpdate(nextProps: Readonly<IProps>): boolean {
+    if (this.isMove) {
+      return false
+    }
+    return !shallowEqual(nextProps, this.props)
+  }
+
+  start = () => {
+    this.isMove = true
   }
 
   changeMoveTime = (rate: number) => {
-    this.setState({ moveTime: this.props.duration * rate })
-  }
-
-  clearMoveTime = () => {
-    this.setState({ moveTime: 0 })
+    // this.setState({ moveTime: this.props.duration * rate })
+    // console.log(this.timeCount)
+    this.timeCount &&
+      this.timeCount.setNativeProps({
+        text: Util.formSecondTotHMS(this.props.duration * rate),
+      })
   }
 
   complete = (rate: number) => {
-    if (!this.props.paused) {
-      this.setState({ moveTime: 0 })
-    }
-    // console.log('control complete',rate, this.props.duration)
+    this.isMove = false
     this.props.changeProgress(rate * this.props.duration)
   }
 
   render() {
-    const { moveTime } = this.state
     const { changePaused, paused, duration, currentTime, rate, isPortrait, changeRateVisible, defaultRateLabel } = this.props
-    const time = moveTime || currentTime
     // console.log('render control', currentTime / duration)
     return (
       <>
-        <Progress style={styles.slider} gap={5} value={currentTime / duration} onMove={this.changeMoveTime} onEnd={this.complete} />
+        <Progress
+          style={styles.slider}
+          gap={5}
+          value={currentTime / duration}
+          onStart={this.start}
+          onMove={this.changeMoveTime}
+          onEnd={this.complete}
+        />
         <View style={styles.tools}>
           <View style={styles.toolLeft}>
             <StartAndPaused paused={paused} changePaused={changePaused} />
+            <TextInput
+              style={{
+                color: '#fff',
+                margin: 0,
+                padding: 0,
+                fontSize: 14,
+              }}
+              ref={ref => {
+                this.timeCount = ref
+              }}
+              editable={false}
+              defaultValue={Util.formSecondTotHMS(currentTime)}
+            />
             <Text
               style={{
                 color: '#fff',
               }}
-            >
-              {Util.formSecondTotHMS(time)}
-            </Text>
-            <TotalTime duration={duration} />
+            >{` / ${Util.formSecondTotHMS(duration)}`}</Text>
           </View>
           <ControlRight defaultRateLabel={defaultRateLabel} rate={rate} isPortrait={isPortrait} changeRateVisible={changeRateVisible} />
         </View>

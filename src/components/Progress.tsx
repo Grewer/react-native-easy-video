@@ -11,7 +11,6 @@ import {
   View,
   ViewStyle,
 } from 'react-native'
-import shallowEqual from '../utils/shallowEqual'
 
 interface IProps {
   style: StyleProp<ViewStyle>
@@ -32,9 +31,6 @@ export default class Progress extends Component<IProps, {}> {
       width: '0%',
     },
   }
-
-  private isMove = false
-  private record = 0
 
   constructor(props: IProps) {
     super(props)
@@ -75,13 +71,6 @@ export default class Progress extends Component<IProps, {}> {
     })
   }
 
-  shouldComponentUpdate(nextProps: Readonly<IProps>): boolean {
-    if (this.isMove) {
-      return false
-    }
-    return !shallowEqual(nextProps, this.props)
-  }
-
   _updateNativeStyles = () => {
     this.progress && this.progress.setNativeProps(this.progressStyles)
   }
@@ -89,7 +78,6 @@ export default class Progress extends Component<IProps, {}> {
   onStart = (e: GestureResponderEvent) => {
     // 获取 按钮的 x的位置
     this.pageX = e.nativeEvent.pageX
-    this.isMove = true
     this.props.onStart && this.props.onStart()
   }
 
@@ -99,7 +87,6 @@ export default class Progress extends Component<IProps, {}> {
     // 获取手指相对屏幕 x的坐标，并设计拖动按钮的位置，拖动按钮不能超出进度条的位置
     const { pageX } = e.nativeEvent
     this.pageX = pageX
-    // this.record = pageX
     // console.log(this.pageX, this.progressLocation.pageX)
     const progressLength = this.progressLocation.pageX
     if (pageX <= progressLength) {
@@ -111,15 +98,11 @@ export default class Progress extends Component<IProps, {}> {
     const rate = (this.pageX - progressLength) / this.progressLocation.width
     this.progressStyles.style.width = `${(rate * 100).toFixed(0)}%`
     this._updateNativeStyles()
-    if (Math.abs(this.record - pageX) > (this.props.gap || 1)) {
-      this.record = pageX
-      this.props.onMove && this.props.onMove(rate)
-    }
+    this.props.onMove && this.props.onMove(rate)
   }
 
   // 触摸结束时回调
   onEnd = () => {
-    this.isMove = false
     this.props.onEnd && this.props.onEnd((this.pageX - this.progressLocation.pageX) / this.progressLocation.width)
   }
 
@@ -151,7 +134,7 @@ export default class Progress extends Component<IProps, {}> {
             ref={ref => {
               this.progress = ref
             }}
-            style={[styles.currentProgress, this.isMove ? {} : { width: `${(this.props.value || 0) * 100}%` }]}
+            style={[styles.currentProgress, { width: `${(this.props.value || 0) * 100}%` }]}
           />
           <View {...this.panResponder.panHandlers} style={styles.dragWrap}>
             <View style={styles.drag} />

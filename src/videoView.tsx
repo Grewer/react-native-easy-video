@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Component, createRef } from 'react'
-import { ActivityIndicator, PanResponder, PanResponderInstance, StatusBar, StyleSheet, View } from 'react-native'
+import { ActivityIndicator, PanResponder, PanResponderInstance, StatusBar, StyleSheet, TouchableOpacity, View, Text } from 'react-native'
 import Video from 'react-native-video'
 import Orientation, { OrientationType } from 'react-native-orientation-locker'
 import Util from './utils/util'
@@ -308,9 +308,6 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
   onEnd = () => {
     // console.log('onEnd')
     this.video.seek(0)
-    if (this.controlRef.current) {
-      this.controlRef.current.clearMoveTime()
-    }
   }
 
   render() {
@@ -365,7 +362,6 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
               this.stopLoading()
               onError && onError(err)
             }}
-            playInBackground
             useTextureView={false} // android 某种设置 test
             ref={ref => {
               this.video = ref
