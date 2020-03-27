@@ -136,9 +136,7 @@ export default class Progress extends Component<IProps, {}> {
             }}
             style={[styles.currentProgress, { width: `${(this.props.value || 0) * 100}%` }]}
           />
-          <View {...this.panResponder.panHandlers} style={styles.dragWrap}>
-            <View style={styles.drag} />
-          </View>
+          <View {...this.panResponder.panHandlers} style={styles.drag} />
           <View style={styles.track} />
         </View>
       </View>
@@ -163,13 +161,6 @@ const styles = StyleSheet.create({
     height: 20,
     justifyContent: 'center',
     transform: [{ translateX: -10 }],
-    width: 20,
-    zIndex: 3001,
-  },
-  dragWrap: {
-    alignItems: 'center',
-    height: 30,
-    justifyContent: 'center',
     width: 20,
     zIndex: 3001,
   },
