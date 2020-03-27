@@ -30,7 +30,7 @@ export interface VideoPropsType {
    *  如果需要播放 m3u8 ,需要添加 type:'m3u8'
    *  如果 uri 是一个本地文件地址,那暂不支持播放
    * */
-  source: { uri?: string; type?: string; headers: { [key: string]: any } } | number
+  source: { uri?: string; type?: string; headers?: { [key: string]: any } } | number
 
   /**
    *  加载错误时的 callback
