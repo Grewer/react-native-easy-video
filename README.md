@@ -88,6 +88,19 @@ yarn add react-native-easy-video
 // or npm i react-native-easy-video
 ```
 
+```
+import VideoView from 'react-native-easy-video'
+
+<VideoView
+    title="file name video.mp4"
+    source={source}
+    height={300}
+    goBack={() => {
+        alert('goBack')
+    }}
+/>
+```
+
 https://github.com/Grewer/react-native-easy-video/blob/master/example/App.js
 
 ## Props
