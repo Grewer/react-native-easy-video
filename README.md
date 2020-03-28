@@ -63,6 +63,7 @@ project(':react-native-video').projectDir = new File(rootProject.projectDir, '..
 <p>
 <img src="https://grewer.github.io/dataSave/react-native-easy-video/android.png" width="200" height="400">
 <img src="https://grewer.github.io/dataSave/react-native-easy-video/android-right.png" width="200" height="400">
+<img src="https://grewer.github.io/dataSave/react-native-easy-video/android-height.png" width="200" height="400">
 </p>
 
 ### iOS
@@ -70,6 +71,7 @@ project(':react-native-video').projectDir = new File(rootProject.projectDir, '..
 <p>
 <img src="https://grewer.github.io/dataSave/react-native-easy-video/iOS.png" width="200" height="400">
 <img src="https://grewer.github.io/dataSave/react-native-easy-video/iOS-right.png" width="200" height="400">
+<img src="https://grewer.github.io/dataSave/react-native-easy-video/iOS-height.png" width="200" height="400">
 </p>
 
 
@@ -91,7 +93,7 @@ https://github.com/Grewer/react-native-easy-video/blob/master/example/App.js
 ## Props
 
 ```
-interface VideoPropsType {
+export interface VideoPropsType {
   /**
    * 正常播放下回退按钮的操作
    */
@@ -99,33 +101,53 @@ interface VideoPropsType {
 
   /**
    * 头部右侧渲染
-   **/
+   * */
   renderMenu?: (isPortrait: boolean) => React.ReactNode
 
   /**
    *  文件名
-   **/
+   * */
   title: string
 
   /**
    *  文件源
-   **/
-  source: VideoProperties['source']
+   *  如果文件路径有中文记得使用 encodeURI
+   *  如果需要播放 m3u8 ,需要添加 type:'m3u8'
+   *  如果 uri 是一个本地文件地址,那暂不支持播放
+   * */
+  source: { uri?: string; type?: string; headers?: { [key: string]: any } } | number
 
   /**
    *  加载错误时的 callback
-   **/
-  onError?: VideoProperties['onError']
+   * */
+  onError?(error: {
+    error: {
+      '': string
+      errorString: string
+    }
+  }): void
 
   /**
    * 默认倍数的显示
    * @default 1x
-   **/
+   * */
   defaultRateLabel?: ''
+
+  /**
+   * 视频缩放模式
+   * @default contain
+   * */
+  resizeMode?: 'stretch' | 'contain' | 'cover' | 'none'
+
+  /**
+   * 视频高度
+   * */
+  height?: number
 }
+
 ```
 
 ## Future features
 
 - [ ] volume  
-- [ ] mode2(Has a custom height) 
+- [x] mode2(Has a custom height) 
