@@ -53,6 +53,11 @@ export interface VideoPropsType {
    * @default contain
    * */
   resizeMode?: 'stretch' | 'contain' | 'cover' | 'none'
+
+  /**
+   * 视频高度
+   * */
+  height?: number
 }
 
 interface VideoViewStateType {
@@ -213,6 +218,7 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
 
     let width = Util.getWidth()
     let height = Util.getHeight()
+    // console.log(width,height)
 
     if (Util.isPlatform('android') && this.state.isPortrait !== isPortrait) {
       width = Util.getHeight()
@@ -291,7 +297,7 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
   // 加载视频获取视频相关参数
   onLoad = (data: any) => {
     // 如果在安卓中已经播放
-    console.log('onLoad', data)
+    // console.log('onLoad', data)
     if (Util.isPlatform('android')) {
       this.changeLoading(false)
     }
@@ -315,7 +321,7 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
   }
 
   seekTrigger = (time: number) => {
-    console.log('seekTrigger')
+    // console.log('seekTrigger')
     this.seekTimeCheck = time
     this.seekTimeOut && clearTimeout(this.seekTimeOut)
     this.seekTimeOut = setTimeout(() => {
@@ -327,7 +333,7 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
     if (Util.isPlatform('android')) {
       return
     }
-    console.log('onSeek', data, this.seekTimeCheck)
+    // console.log('onSeek', data, this.seekTimeCheck)
     if (Math.floor(this.seekTimeCheck) === Math.floor(data.currentTime)) {
       this.seekTimeOut && clearTimeout(this.seekTimeOut)
       this.changeLoading(false)
@@ -335,7 +341,7 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
   }
 
   render() {
-    const { goBack, title, source, renderMenu, onError, defaultRateLabel, resizeMode } = this.props
+    const { goBack, title, source, renderMenu, onError, defaultRateLabel, resizeMode, height } = this.props
     const { videoScreen } = this
     const { loading, rateShow, controlShow, isPortrait, volume, paused, muted, currentTime, duration, rate } = this.state
     const controlConfig = {
@@ -356,16 +362,23 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
     return (
       <View
         style={{
-          paddingTop: videoScreen.paddingTop,
+          paddingTop: height ? 0 : videoScreen.paddingTop,
           paddingLeft: this.isIphoneX ? videoScreen.paddingLeft : 0,
-          flex: 1,
+          flex: height ? 0 : 1,
           justifyContent: isPortrait ? 'flex-start' : 'center',
           alignItems: isPortrait ? 'center' : 'flex-start',
           backgroundColor: 'black',
           position: 'relative',
         }}
       >
-        <View {...this.panResponder.panHandlers} style={{ width: videoScreen.width, height: videoScreen.height, backgroundColor: 'black' }}>
+        <View
+          {...this.panResponder.panHandlers}
+          style={{
+            width: videoScreen.width,
+            height: height ? (isPortrait ? height : '100%') : videoScreen.height,
+            backgroundColor: 'black',
+          }}
+        >
           {/* 关于 iOS 加载 HTTP https://www.npmjs.com/package/react-native-video#ios-app-transport-security */}
           <Video
             reportBandwidth

@@ -11,6 +11,7 @@ import {
   View,
   ViewStyle,
 } from 'react-native'
+import Util from '../utils/util'
 
 interface IProps {
   style: StyleProp<ViewStyle>
@@ -19,6 +20,7 @@ interface IProps {
   onMove?: (rate: number) => void
   onStart?: () => void
   gap: number
+  isPortrait: boolean
 }
 
 export default class Progress extends Component<IProps, {}> {
@@ -85,8 +87,10 @@ export default class Progress extends Component<IProps, {}> {
   onMove = (e: GestureResponderEvent) => {
     // console.log(this.pageX, e.nativeEvent.pageX)
     // 获取手指相对屏幕 x的坐标，并设计拖动按钮的位置，拖动按钮不能超出进度条的位置
-    const { pageX } = e.nativeEvent
+    const pageX = !this.props.isPortrait && Util.isIPhoneX() ? e.nativeEvent.pageX - 34 : e.nativeEvent.pageX
     this.pageX = pageX
+    // this.pageX = (isPortrait &&) pageX - 34
+    // 如果 是 iPhoneX 且 横屏
     // console.log(this.pageX, this.progressLocation.pageX)
     const progressLength = this.progressLocation.pageX
     if (pageX <= progressLength) {
@@ -115,7 +119,7 @@ export default class Progress extends Component<IProps, {}> {
       // if (Util.isPlatform('android')) {
       //   // x = pageX + 10
       // }
-      // console.log('onLayout', x, y, width, height, pageX)
+      // console.log('onLayout', x, y, width)
       this.progressLocation = {
         name: 'progressLocation',
         pageX: 20,

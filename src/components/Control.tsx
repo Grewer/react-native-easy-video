@@ -125,6 +125,7 @@ class Control extends Component<IProps> {
           onStart={this.onStart}
           onMove={this.changeMoveTime}
           onEnd={this.onEnd}
+          isPortrait={isPortrait}
         />
         <View style={styles.tools}>
           <View style={styles.toolLeft}>
