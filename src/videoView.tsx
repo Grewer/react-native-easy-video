@@ -329,12 +329,12 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
     }, 300)
   }
 
-  onSeek = (data: { currentTime: number }) => {
+  onSeek = (data: { seekTime: number }) => {
     if (Util.isPlatform('android')) {
       return
     }
     // console.log('onSeek', data, this.seekTimeCheck)
-    if (Math.floor(this.seekTimeCheck) === Math.floor(data.currentTime)) {
+    if (Math.floor(this.seekTimeCheck) === Math.floor(data.seekTime)) {
       this.seekTimeOut && clearTimeout(this.seekTimeOut)
       this.changeLoading(false)
     }
