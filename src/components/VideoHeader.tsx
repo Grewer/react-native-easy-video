@@ -1,7 +1,7 @@
 import * as React from 'react'
+import { memo } from 'react'
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import Orientation from 'react-native-orientation-locker'
-import { memo } from 'react'
 
 const VideoHeader: React.FC<{
   controlShow: boolean
@@ -20,12 +20,12 @@ const VideoHeader: React.FC<{
             Orientation.lockToPortrait()
           }
         }}
-        style={{ height: '100%', width: 40, justifyContent: 'center', alignItems: 'center' }}
+        style={styles.goBack}
       >
         <Image style={{ height: 30, width: 30 }} source={require('../images/back.png')} />
       </TouchableOpacity>
 
-      <Text style={{ color: '#fff' }}>{props.title}</Text>
+      <Text style={styles.title}>{props.title}</Text>
 
       {props.renderMenu ? props.renderMenu(props.isPortrait) : <View />}
     </View>
@@ -44,6 +44,8 @@ const styles = StyleSheet.create({
     top: 0,
     width: '100%',
   },
+  goBack: { alignItems: 'center', height: '100%', justifyContent: 'center', width: 40 },
+  title: { color: '#fff', flexWrap: 'wrap', flex: 1 },
 })
 
 export default VideoHeader
