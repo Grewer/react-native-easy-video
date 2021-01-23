@@ -42,30 +42,23 @@ class RateView extends PureComponent<IProps, IState> {
     right: new Animated.Value(120),
   }
 
+  rateRange = ['1.0', '1.25', '1.5', '1.75', '2.0']
+
   render() {
     const { changeRate } = this.props
     // console.log('render RateView')
     return (
       <Animated.View
-        style={{
-          zIndex: 100,
-          width: 120,
-          height: '100%',
-          justifyContent: 'center',
-          alignItems: 'center',
-          position: 'absolute',
-          top: 0,
-          right: 0,
+        style={[styles.box, {
           transform: [
             {
               translateX: this.state.right,
             },
           ], // 这种写法兼容 iOS 和 Android
           // translateX: this.state.right, 只兼容 Android
-          backgroundColor: 'rgba(0,0,0,0.5)',
-        }}
+        }]}
       >
-        {['1.0', '1.25', '1.5', '1.75', '2.0'].map(rate => {
+        {this.rateRange.map(rate => {
           return (
             <TouchableOpacity
               key={rate}
@@ -86,6 +79,17 @@ class RateView extends PureComponent<IProps, IState> {
 const styles = StyleSheet.create({
   position: { alignItems: 'center', height: 50, justifyContent: 'center', width: '100%' },
   text: { color: '#fff' },
+  box: {
+    zIndex: 100,
+    width: 120,
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  }
 })
 
 export default RateView

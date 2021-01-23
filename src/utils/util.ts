@@ -1,10 +1,10 @@
 import { Dimensions, Platform } from 'react-native'
 
-const IsPhoneX = (() => {
+const IsPhoneXJudge = () => {
   const size = Dimensions.get('window')
 
   return Platform.OS === 'ios' && (size.height === 812 || size.width === 812 || size.height === 896 || size.width === 896)
-})()
+}
 
 export default class Util {
   // 屏幕尺寸
@@ -33,9 +33,12 @@ export default class Util {
     return Platform.OS === platform
   }
 
+
   // 判断是否是IPhoneX
   static isIPhoneX() {
-    return IsPhoneX
+    const result = IsPhoneXJudge()
+    Util.isIPhoneX = () => result
+    return result
   }
 
   // 把传入的秒数格式化成 时分秒（00：00：00），

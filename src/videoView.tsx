@@ -28,7 +28,6 @@ export interface VideoPropsType {
    *  文件源
    *  如果文件路径有中文记得使用 encodeURI
    *  如果需要播放 m3u8 ,需要添加 type:'m3u8'
-   *  如果 uri 是一个本地文件地址,那暂不支持播放
    * */
   source: { uri?: string; type?: string; headers?: { [key: string]: any } } | number
 
@@ -58,6 +57,21 @@ export interface VideoPropsType {
    * 视频高度
    * */
   height?: number
+
+
+  /**
+   * 自动播放
+   * @default false
+   * 默认不自动播放
+   */
+  autoPlay?: boolean
+
+  /**
+   * 是否循环播放
+   * 默认 false
+   * 默认不循环播放
+   */
+  loop?: boolean
 }
 
 interface VideoViewStateType {
@@ -78,10 +92,8 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
   private panResponder: PanResponderInstance
   private videoRatio: { rate?: number; width: number; height: number }
   private videoScreen: { width: number; paddingTop: number; paddingLeft: number; height: number; rate?: number }
-  private statusHeight: number
-  private video: InstanceType<typeof Video>
+  private videoRef: React.RefObject<InstanceType<typeof Video>> = React.createRef()
   private controlRef: React.RefObject<any> = createRef()
-  private readonly isIphoneX: boolean
   private seekTimeOut: NodeJS.Timeout
   private seekTimeCheck = 0
 
@@ -89,13 +101,15 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
     super(props)
     // 页面初始，锁定屏幕为竖屏
     Orientation.lockToPortrait()
-    this.isIphoneX = Util.isIPhoneX()
+
+    const { autoPlay = false } = props
+
     // 初始化页面参数
     this.state = {
       rate: 1, // 用于倍速播放，0.0-暂停播放，1.0-正常速率播放，其他值 - 自定义速率，例如0.5慢速播放或者2.0快速播放
       volume: 1, // 视频播放的音量控制，1.0-满音量， 0.0-将音频静音
       muted: false, // 控制音频是否静音，(true、false)
-      paused: true, // 控制视频播放暂停 (true、false) ，以上是Video组件的受控的参数
+      paused: !autoPlay, // 控制视频播放暂停 (true、false) ，以上是Video组件的受控的参数
       loading: true,
       duration: 0.0, // 视频的总时长
       currentTime: 0.0, // 视频的当前播放进度，单位为秒
@@ -237,29 +251,28 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
     }
 
     // 计算视频可用分辨率
-    this.statusHeight = 0
+    let statusHeight = 0
 
     // 竖屏
     if (isPortrait) {
-      if (this.isIphoneX) {
-        this.statusHeight = 40
+      if (Util.isIPhoneX()) {
+        statusHeight = 40
         this.videoScreen.height -= 74
       } else {
-        this.statusHeight = 20
+        statusHeight = 20
         this.videoScreen.height -= 20
       }
 
       // 安卓不开启沉浸式时为0，
       if (Util.isPlatform('android')) {
-        this.statusHeight = 0
+        statusHeight = 0
       }
       // 竖屏设置top
-      this.videoScreen.paddingTop = this.statusHeight
+      this.videoScreen.paddingTop = statusHeight
       this.videoScreen.paddingLeft = 0
     } else {
       // 横屏
-      if (this.isIphoneX) {
-        this.statusHeight = 40
+      if (Util.isIPhoneX()) {
         this.videoScreen.width -= 74
       } else if (Util.isPlatform('android')) {
         this.videoScreen.height = this.videoScreen.height - StatusBar.currentHeight || 0
@@ -284,7 +297,7 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
 
   // 设置视频的播放进度
   changeProgress = (time: number) => {
-    this.video.seek(time)
+    this.videoRef.current.seek(time)
   }
 
   // 改变视频的播放时间
@@ -317,7 +330,22 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
   // 视频播放完回调
   onEnd = () => {
     // console.log('onEnd')
-    this.video.seek(0)
+    if (!this.props.loop) {
+      if (Util.isIPhoneX()) {
+        this.setState({
+          paused: true,
+          currentTime: 0,
+        }, () => {
+          this.videoRef.current.seek(0)
+        })
+      } else {
+        this.setState({
+          paused: true,
+        }, () => {
+          this.videoRef.current.seek(0)
+        })
+      }
+    }
   }
 
   seekTrigger = (time: number) => {
@@ -340,10 +368,40 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
     }
   }
 
+  onError = (err: { error: { '': string; errorString: string } }) => {
+    this.changeLoading(false)
+    const { onError } = this.props
+    onError && onError(err)
+  }
+
+  onReadyForDisplay = () => {
+    this.changeLoading(false)
+  }
+
   render() {
-    const { goBack, title, source, renderMenu, onError, defaultRateLabel, resizeMode, height } = this.props
+    const {
+      goBack,
+      title,
+      source,
+      renderMenu,
+      defaultRateLabel,
+      resizeMode = 'contain',
+      height,
+      loop = false
+    } = this.props
     const { videoScreen } = this
-    const { loading, rateShow, controlShow, isPortrait, volume, paused, muted, currentTime, duration, rate } = this.state
+    const {
+      loading,
+      rateShow,
+      controlShow,
+      isPortrait,
+      volume,
+      paused,
+      muted,
+      currentTime,
+      duration,
+      rate
+    } = this.state
     const controlConfig = {
       duration,
       paused,
@@ -363,7 +421,7 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
       <View
         style={{
           paddingTop: height ? 0 : videoScreen.paddingTop,
-          paddingLeft: this.isIphoneX ? videoScreen.paddingLeft : 0,
+          paddingLeft: Util.isIPhoneX() ? videoScreen.paddingLeft : 0,
           flex: height ? 0 : 1,
           justifyContent: isPortrait ? 'flex-start' : 'center',
           alignItems: isPortrait ? 'center' : 'flex-start',
@@ -384,33 +442,26 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
             reportBandwidth
             allowsExternalPlayback
             onLoadStart={this.onLoadStart}
-            onReadyForDisplay={() => {
-              this.changeLoading(false)
-            }}
+            onReadyForDisplay={this.onReadyForDisplay}
             source={source}
-            style={{ width: '100%', height: '100%' }}
+            style={styles.videoIns}
             rate={rate}
             paused={paused}
             volume={volume}
             muted={muted}
-            resizeMode={resizeMode || 'contain'}
-            repeat={false}
+            resizeMode={resizeMode}
+            repeat={loop}
             onLoad={this.onLoad}
             onProgress={this.onProgress}
             onEnd={this.onEnd}
-            onError={err => {
-              this.changeLoading(false)
-              onError && onError(err)
-            }}
+            onError={this.onError}
             onSeek={this.onSeek}
             useTextureView={false} // android 某种设置 test
-            ref={ref => {
-              this.video = ref
-            }}
+            ref={this.videoRef}
           />
           {loading && (
             <View style={[styles.loading, styles.horizontal]}>
-              <ActivityIndicator size="large" color="#b0b0b0" />
+              <ActivityIndicator size="large" color="#b0b0b0"/>
             </View>
           )}
 
@@ -423,11 +474,10 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
                 },
               ]}
             >
-              <VideoHeader renderMenu={renderMenu} title={title} controlShow={controlShow} goBack={goBack} isPortrait={isPortrait} />
-              <RateView rateShow={rateShow} changeRate={this.changeRate} />
-              <View style={styles.control}>
-                <Control ref={this.controlRef} {...controlConfig} />
-              </View>
+              <VideoHeader renderMenu={renderMenu} title={title} controlShow={controlShow} goBack={goBack}
+                           isPortrait={isPortrait}/>
+              {rateShow && <RateView rateShow={rateShow} changeRate={this.changeRate}/>}
+              <Control ref={this.controlRef} {...controlConfig} />
             </View>
           )}
         </View>
@@ -437,14 +487,7 @@ export default class VideoView extends Component<VideoPropsType, VideoViewStateT
 }
 
 const styles = StyleSheet.create({
-  control: {
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    bottom: 0,
-    height: 65,
-    left: 0,
-    position: 'absolute',
-    width: '100%',
-  },
+  videoIns: { width: '100%', height: '100%' },
   horizontal: {
     flexDirection: 'row',
     justifyContent: 'space-around',

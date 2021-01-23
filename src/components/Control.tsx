@@ -24,12 +24,7 @@ const StartAndPaused: React.FC<Pick<IProps, 'changePaused' | 'paused'>> = memo(p
   return (
     <TouchableOpacity
       onPress={props.changePaused}
-      style={{
-        height: '100%',
-        width: 50,
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
+      style={styles.full}
     >
       <Image
         style={props.paused ? { height: 20, width: 20 } : { height: 16, width: 16 }}
@@ -53,12 +48,7 @@ const ControlRight: React.FC<IControlRight> = memo(props => {
         onPress={() => {
           changeRateVisible(true)
         }}
-        style={{
-          height: '100%',
-          width: 50,
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
+        style={styles.full}
       >
         <Text style={{ color: '#fff' }}>{defaultRateLabel && rate === 1 ? defaultRateLabel : `${rate}x`}</Text>
       </TouchableOpacity>
@@ -68,14 +58,9 @@ const ControlRight: React.FC<IControlRight> = memo(props => {
           onPress={() => {
             Orientation.lockToLandscapeRight()
           }}
-          style={{
-            height: '100%',
-            width: 50,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
+          style={styles.full}
         >
-          <Image style={{ height: 16, width: 16 }} source={require('../images/bigScreen.png')} />
+          <Image style={{ height: 16, width: 16 }} source={require('../images/bigScreen.png')}/>
         </TouchableOpacity>
       )}
     </View>
@@ -101,9 +86,9 @@ class Control extends Component<IProps> {
     // this.setState({ moveTime: this.props.duration * rate })
     // console.log(this.timeCount)
     this.timeCount &&
-      this.timeCount.setNativeProps({
-        text: Util.formSecondTotHMS(this.props.duration * rate),
-      })
+    this.timeCount.setNativeProps({
+      text: Util.formSecondTotHMS(this.props.duration * rate),
+    })
   }
 
   onEnd = (rate: number) => {
@@ -114,10 +99,19 @@ class Control extends Component<IProps> {
   }
 
   render() {
-    const { changePaused, paused, duration, currentTime, rate, isPortrait, changeRateVisible, defaultRateLabel } = this.props
+    const {
+      changePaused,
+      paused,
+      duration,
+      currentTime,
+      rate,
+      isPortrait,
+      changeRateVisible,
+      defaultRateLabel
+    } = this.props
     // console.log('render control', currentTime / duration)
     return (
-      <>
+      <View style={styles.control}>
         <Progress
           style={styles.slider}
           gap={5}
@@ -129,14 +123,9 @@ class Control extends Component<IProps> {
         />
         <View style={styles.tools}>
           <View style={styles.toolLeft}>
-            <StartAndPaused paused={paused} changePaused={changePaused} />
+            <StartAndPaused paused={paused} changePaused={changePaused}/>
             <TextInput
-              style={{
-                color: '#fff',
-                margin: 0,
-                padding: 0,
-                fontSize: 14,
-              }}
+              style={styles.textInput}
               ref={ref => {
                 this.timeCount = ref
               }}
@@ -149,14 +138,27 @@ class Control extends Component<IProps> {
               }}
             >{` / ${Util.formSecondTotHMS(duration)}`}</Text>
           </View>
-          <ControlRight defaultRateLabel={defaultRateLabel} rate={rate} isPortrait={isPortrait} changeRateVisible={changeRateVisible} />
+          <ControlRight defaultRateLabel={defaultRateLabel} rate={rate} isPortrait={isPortrait}
+                        changeRateVisible={changeRateVisible}/>
         </View>
-      </>
+      </View>
     )
   }
 }
 
 const styles = StyleSheet.create({
+  full: {
+    height: '100%',
+    width: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  textInput: {
+    color: '#fff',
+    margin: 0,
+    padding: 0,
+    fontSize: 14,
+  },
   slider: {
     flex: 1,
     height: 30,
@@ -182,6 +184,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     height: '50%',
     justifyContent: 'center',
+    width: '100%',
+  },
+  control: {
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    bottom: 0,
+    height: 65,
+    left: 0,
+    position: 'absolute',
     width: '100%',
   },
 })

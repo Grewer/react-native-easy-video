@@ -156,6 +156,20 @@ export interface VideoPropsType {
    * 视频高度
    * */
   height?: number
+  
+    /**
+   * 自动播放
+   * @default false
+   * 默认不自动播放
+   */
+  autoPlay?: boolean
+  
+  /**
+   * 是否循环播放
+   * 默认 false
+   * 默认不循环播放
+   */
+  loop?: boolean
 }
 
 ```

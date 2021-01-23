@@ -24,6 +24,7 @@ interface IProps {
 }
 
 export default class Progress extends PureComponent<IProps, {}> {
+  viewRef: React.RefObject<View>
   private pageX: number
   private progressLocation: { name?: string; width: number; pageX: number }
   private panResponder: PanResponderInstance
@@ -36,6 +37,7 @@ export default class Progress extends PureComponent<IProps, {}> {
 
   constructor(props: IProps) {
     super(props)
+    this.viewRef = React.createRef()
     this.pageX = 0 // 记录触摸按钮的位置
     // 进度条的位置和长度
     this.progressLocation = {
@@ -111,15 +113,7 @@ export default class Progress extends PureComponent<IProps, {}> {
   }
 
   onLayout = (event: LayoutChangeEvent) => {
-    // let {x, y, width, height} = event.nativeEvent.layout;
-    // 拿到这个view的x位置和宽度
-    // @ts-ignore
-    NativeModules.UIManager.measure(event.target, (x, y, width) => {
-      // 安卓手机获取的值与ios不一样，特殊处理
-      // if (Util.isPlatform('android')) {
-      //   // x = pageX + 10
-      // }
-      // console.log('onLayout', x, y, width)
+    this.viewRef.current.measure((x, y, width) => {
       this.progressLocation = {
         name: 'progressLocation',
         pageX: 20,
@@ -132,7 +126,7 @@ export default class Progress extends PureComponent<IProps, {}> {
     // console.log('render progress', ((this.pageX - this.progressLocation.pageX) / this.progressLocation.width), this.progressLocation)
     // Slider
     return (
-      <View style={[this.props.style, { paddingHorizontal: 20 }]} onLayout={this.onLayout}>
+      <View ref={this.viewRef} style={[this.props.style, { paddingHorizontal: 20 }]} onLayout={this.onLayout}>
         <View style={styles.maxProgress}>
           <View
             ref={ref => {
